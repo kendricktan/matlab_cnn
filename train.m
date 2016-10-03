@@ -6,9 +6,20 @@ vl_setupnn;
 net = load('imagenet-caffe-alex.mat');
 net = vl_simplenn_tidy(net);
 
+% Wait for clapping sound
+recordObj = audiorecorder;
+disp('Waiting for clapping sound...');
+while 1
+    recordblocking(recordObj, 1);
+    y = getaudiodata(recordObj);
+    if max(y) > 0.75
+        break
+    end
+end
+disp('Clapping sound heard!');
+
 % Read and preprocess image
-cam = webcam();
-im = snapshot(cam);
+im = imread('image.jpg');
 im_ = single(im) ; % note: 255 range
 im_ = imresize(im_, net.meta.normalization.imageSize(1:2)) ;
 im_ = im_ - net.meta.normalization.averageImage ;
