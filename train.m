@@ -1,46 +1,22 @@
-% Download the compressed data set from the following location
-url = 'http://www.vision.caltech.edu/Image_Datasets/Caltech101/101_ObjectCategories.tar.gz';
-outputFolder = fullfile('caltech101'); % define output folder
+% Setup MatConvNet
+addpath ~/Documents/MATLAB/matconvnet-1.0-beta21/matlab
+vl_setupnn;
 
-% Only download dataset once
-if ~exist(outputFolder, 'dir') % download only once
-    disp('Downloading 126MB Caltech101 data set...');
-    untar(url, outputFolder);
-end
+% Load a model and upgrade it to MatConvNet current version.
+net = load('imagenet-caffe-alex.mat');
+net = vl_simplenn_tidy(net);
 
-% Use 3 categories for now
-rootFolder = fullfile(outputFolder, '101_ObjectCategories');
-categories = {'airplanes', 'ferry', 'laptop'};
+% Read and preprocess image
+im = imread('peppers.jpg') ;
+im_ = single(im) ; % note: 255 range
+im_ = imresize(im_, net.meta.normalization.imageSize(1:2)) ;
+im_ = im_ - net.meta.normalization.averageImage ;
 
-% Load and normalize images
-imds = imageDatastore(fullfile(rootFolder, categories), 'LabelSource', 'foldernames');
-imds.ReadFcn = @(filename)normalize(filename);
-[trainingSet, testSet] = splitEachLabel(imds, 0.3, 'randomize');
+% Run the CNN.
+res = vl_simplenn(net, im_) ;
 
-% Load our trained neural network
-cnnMatFile = fullfile('imagenet-caffe-alex.mat');
-convnet = helperImportMatConvNet(cnnMatFile);
-
-% Extract out our feature layers
-featureLayer = 'fc7';
-trainingFeatures = activations(convnet, trainingSet, featureLayer, 'MiniBatchSize', 32, 'OutputAs', 'columns');
-
-% Get training labels from the trainingSet
-trainingLabels = trainingSet.Labels;
-
-% Train multiclass SVM classifier using a fast linear solver, and set
-% 'ObservationsIn' to 'columns' to match the arrangement used for training
-% features.
-classifier = fitcecoc(trainingFeatures, trainingLabels, 'Learners', 'Linear', 'Coding', 'onevsall', 'ObservationsIn', 'columns');
-
-% New image
-newImage = fullfile(rootFolder, 'airplanes', 'image_0690.jpg');
-
-% Pre-process the images as required for the CNN
-img = readAndPreprocessImage(newImage);
-
-% Extract image features using the CNN
-imageFeatures = activations(convnet, img, 'fc7');
-
-% Make a prediction using the classifier
-label = predict(classifier, imageFeatures);
+% Show the classification result.
+scores = squeeze(gather(res(end).x)) ;
+[bestScore, best] = max(scores) ;
+figure(1) ; clf ; imagesc(im) ;
+title(sprintf('%s (%d), score %.3f', net.meta.classes.description{best}, best, bestScore)) ;
