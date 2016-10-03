@@ -7,7 +7,8 @@ net = load('imagenet-caffe-alex.mat');
 net = vl_simplenn_tidy(net);
 
 % Read and preprocess image
-im = imread('peppers.jpg') ;
+cam = webcam();
+im = snapshot(cam);
 im_ = single(im) ; % note: 255 range
 im_ = imresize(im_, net.meta.normalization.imageSize(1:2)) ;
 im_ = im_ - net.meta.normalization.averageImage ;
@@ -19,4 +20,4 @@ res = vl_simplenn(net, im_) ;
 scores = squeeze(gather(res(end).x)) ;
 [bestScore, best] = max(scores) ;
 figure(1) ; clf ; imagesc(im) ;
-title(sprintf('%s (%d), score %.3f', net.meta.classes.description{best}, best, bestScore)) ;
+title(sprintf('%s, score %.3f', net.meta.classes.description{best}, bestScore)) ;
