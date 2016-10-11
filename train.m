@@ -41,11 +41,11 @@ while 1
     [bestScore, best] = max(scores) ;
     figure(1) ; clf ; imagesc(im) ;
     title(sprintf('%s, score %.3f', net.meta.classes.description{best}, bestScore));
-
-    do_again = input('Record image again? (y/n): ', 's');
-    if do_again == 'n'
-        break
-    end
+    
+    %do_again = input('Record image again? (y/n): ', 's');
+    %if do_again == 'n'
+    %    break
+    %end
 end
 
 closePreview(cam);
