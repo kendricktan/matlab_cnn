@@ -1,8 +1,17 @@
 function Jeff_ImageClassifier(cam,newScale)
 
 % Setup MatConvNet
-addpath ~/Documents/MATLAB/matconvnet-1.0-beta21/matlab
-vl_setupnn;
+disp('Please run mingw.mlpkginstall before running this program')
+disp('NOTE** If compiling matconvnet file you will need to a C/C++ compiler, download from - https://www.visualstudio.com/vs/cplusplus/')
+disp('---')
+disp('Downloading matconvnet...')
+untar('http://www.vlfeat.org/matconvnet/download/matconvnet-1.0-beta23.tar.gz') ;
+cd matconvnet-1.0-beta23
+disp('Compiling matconvtnet...')
+run matlab/vl_compilenn;
+run matlab/vl_setupnn;
+
+cd ..
 
 % Load a model and upgrade it to MatConvNet current version.
 disp('Loading model...');
