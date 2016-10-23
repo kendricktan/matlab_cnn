@@ -1,3 +1,3 @@
 cam = webcam();
 
-Jeff_ImageClassifier(cam, 1280*960);
+JeffImageClassifier2(cam, 'reference.png', 1280*960);

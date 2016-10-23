@@ -6,7 +6,7 @@ vl_setupnn;
 
 % Load a model and upgrade it to MatConvNet current version.
 disp('Loading model...');
-net = load('imagenet-caffe-alex.mat');
+net = load('cnn_model.mat');
 net = vl_simplenn_tidy(net);
 disp('Finished loading model...');
 
